@@ -55,7 +55,7 @@ async def plan_trip(request: TripRequest):
                 # 提交任务
                 future = executor.submit(run_plan_generation)
                 # 等待最多120秒
-                trip_plan = future.result(timeout=120)
+                trip_plan = future.result(timeout=240)
         except concurrent.futures.TimeoutError:
             print("❌ 生成旅行计划超时")
             raise HTTPException(
@@ -109,4 +109,3 @@ async def health_check():
             status_code=503,
             detail=f"服务不可用: {str(e)}"
         )
-

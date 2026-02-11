@@ -42,6 +42,9 @@ class Settings(BaseSettings):
     openai_api_key: str = ""
     openai_base_url: str = "https://api.openai.com/v1"
     openai_model: str = "gpt-4"
+    
+    # LLM超时配置（秒）
+    llm_timeout: int = 120
 
     # 日志配置
     log_level: str = "INFO"
@@ -103,9 +106,10 @@ def print_config():
     llm_api_key = os.getenv("LLM_API_KEY") or os.getenv("OPENAI_API_KEY")
     llm_base_url = os.getenv("LLM_BASE_URL") or settings.openai_base_url
     llm_model = os.getenv("LLM_MODEL_ID") or settings.openai_model
+    llm_timeout = os.getenv("LLM_TIMEOUT") or settings.llm_timeout
 
     print(f"LLM API Key: {'已配置' if llm_api_key else '未配置'}")
     print(f"LLM Base URL: {llm_base_url}")
     print(f"LLM Model: {llm_model}")
+    print(f"LLM Timeout: {llm_timeout}秒")
     print(f"日志级别: {settings.log_level}")
-

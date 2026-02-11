@@ -56,13 +56,14 @@ class TripPlannerAgentsLLM:
             provider: LLM提供商，如果未提供则自动检测
             temperature: 温度参数
             max_tokens: 最大token数
-            timeout: 超时时间，从环境变量LLM_TIMEOUT读取，默认60秒
+            timeout: 超时时间，从环境变量LLM_TIMEOUT读取，默认120秒
         """
         # 优先使用传入参数，如果未提供，则从环境变量加载
         self.model = model or os.getenv("LLM_MODEL_ID")
         self.temperature = temperature
         self.max_tokens = max_tokens
-        self.timeout = timeout or int(os.getenv("LLM_TIMEOUT", "60"))
+        # 增加默认超时时间到120秒，支持更复杂的推理任务
+        self.timeout = timeout or int(os.getenv("LLM_TIMEOUT", "120"))
         self.kwargs = kwargs
 
         # 自动检测provider或使用指定的provider
@@ -352,12 +353,16 @@ class TripPlannerAgentsLLM:
         适用于不需要流式输出的场景。
         """
         try:
+            # 为invoke方法单独设置更长的超时时间，因为可能需要更多时间处理复杂任务
+            invoke_timeout = kwargs.pop('timeout', self.timeout * 2)  # 默认双倍超时
+            
             response = self._client.chat.completions.create(
                 model=self.model,
                 messages=messages,
                 temperature=kwargs.get('temperature', self.temperature),
                 max_tokens=kwargs.get('max_tokens', self.max_tokens),
-                **{k: v for k, v in kwargs.items() if k not in ['temperature', 'max_tokens']}
+                timeout=invoke_timeout,
+                **{k: v for k, v in kwargs.items() if k not in ['temperature', 'max_tokens', 'timeout']}
             )
             return response.choices[0].message.content
         except Exception as e:
