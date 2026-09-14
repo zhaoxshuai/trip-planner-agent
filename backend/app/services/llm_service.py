@@ -1,7 +1,7 @@
 """LLM服务模块"""
 
 from ..core.llm import TripPlannerAgentsLLM
-from backend.app.config import get_settings
+from ..config import get_settings
 
 # 全局LLM实例
 _llm_instance = None

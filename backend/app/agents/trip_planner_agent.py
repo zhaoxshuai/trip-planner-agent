@@ -1,9 +1,10 @@
 import json
+import time
 from ..services.llm_service import get_llm
 from ..tools.protocol_tools import MCPTool
 from .agent import SimpleAgent
 from ..models.schemas import TripRequest, TripPlan, DayPlan, Attraction, Meal, Location
-from backend.app.config import get_settings
+from ..config import get_settings
 
 # ============ Agent提示词 ============
 
@@ -246,17 +247,24 @@ class MultiAgentTripPlanner:
             attraction_response = self.attraction_agent.run(attraction_query)
             print(f"景点搜索结果: {attraction_response[:200]}...\n")
 
+            # 间隔避免短时间突发打满LLM提供商RPM限流
+            time.sleep(3)
+
             # 步骤2: 天气查询Agent查询天气
             print("🌤️  步骤2: 查询天气...")
             weather_query = f"请查询{request.city}的天气信息"
             weather_response = self.weather_agent.run(weather_query)
             print(f"天气查询结果: {weather_response[:200]}...\n")
 
+            time.sleep(3)
+
             # 步骤3: 酒店推荐Agent搜索酒店
             print("🏨 步骤3: 搜索酒店...")
             hotel_query = f"请搜索{request.city}的{request.accommodation}酒店"
             hotel_response = self.hotel_agent.run(hotel_query)
             print(f"酒店搜索结果: {hotel_response[:200]}...\n")
+
+            time.sleep(3)
 
             # 步骤4: 行程规划Agent整合信息生成计划
             print("📋 步骤4: 生成行程计划...")

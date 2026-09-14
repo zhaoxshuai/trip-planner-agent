@@ -1,7 +1,7 @@
 """高德地图MCP服务封装"""
 
 from typing import List, Dict, Any, Optional
-from backend.app.config import get_settings
+from ..config import get_settings
 from ..models.schemas import Location, POIInfo, WeatherInfo
 from ..tools.protocol_tools import MCPTool
 

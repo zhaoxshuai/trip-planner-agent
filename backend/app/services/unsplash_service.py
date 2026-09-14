@@ -2,7 +2,7 @@
 
 import requests
 from typing import List, Optional
-from backend.app.config import get_settings
+from ..config import get_settings
 
 class UnsplashService:
     """Unsplash图片服务类"""

@@ -64,6 +64,8 @@ class TripPlannerAgentsLLM:
         self.max_tokens = max_tokens
         # 增加默认超时时间到120秒，支持更复杂的推理任务
         self.timeout = timeout or int(os.getenv("LLM_TIMEOUT", "120"))
+        # 429限流等可重试错误的最大重试次数，默认5次
+        self.max_retries = int(os.getenv("OPENAI_MAX_RETRIES", "5"))
         self.kwargs = kwargs
 
         # 自动检测provider或使用指定的provider
@@ -264,7 +266,8 @@ class TripPlannerAgentsLLM:
         return OpenAI(
             api_key=self.api_key,
             base_url=self.base_url,
-            timeout=self.timeout
+            timeout=self.timeout,
+            max_retries=self.max_retries
         )
 
     def _get_default_model(self) -> str:

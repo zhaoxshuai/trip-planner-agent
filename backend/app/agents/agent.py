@@ -267,27 +267,13 @@ class SimpleAgent(Agent):
         # 添加当前用户消息
         messages.append({"role": "user", "content": input_text})
 
-        # 如果没有启用工具调用，使用流式调用
+        # 如果没有启用工具调用，使用非流式调用
         if not self.enable_tool_calling:
-            full_response = ""
             print(f"🧠 正在调用 {self.llm.model} 模型...")
-            try:
-                # 使用流式调用替代原来的invoke方法
-                for chunk in self.llm.stream_invoke(messages, **kwargs):
-                    full_response += chunk
-                    print(chunk, end="", flush=True)
-                print()  # 换行
-                
-                self.add_message(Message(input_text, "user"))
-                self.add_message(Message(full_response, "assistant"))
-                return full_response
-            except Exception as e:
-                print(f"❌ 流式调用失败: {e}")
-                # 降级到非流式调用
-                response = self.llm.invoke(messages, **kwargs)
-                self.add_message(Message(input_text, "user"))
-                self.add_message(Message(response, "assistant"))
-                return response
+            response = self.llm.invoke(messages, **kwargs)
+            self.add_message(Message(input_text, "user"))
+            self.add_message(Message(response, "assistant"))
+            return response
 
         # 迭代处理，支持多轮工具调用
         current_iteration = 0
